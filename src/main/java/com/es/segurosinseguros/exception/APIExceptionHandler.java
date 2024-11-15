@@ -17,7 +17,7 @@ public class APIExceptionHandler {
         return new ErrorMessageForClient(e.getMessage(), request.getRequestURI());
     }
 
-    // e.getMessage() --> BAD REQUEST (400). id no válido
+    // e.getMessage() --> BAD REQUEST (400).
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -26,10 +26,15 @@ public class APIExceptionHandler {
         return new ErrorMessageForClient(e.getMessage(), request.getRequestURI());
     }
 
+    // e.getMessage() --> NOT_FOUND (404).
+
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public ErrorMessageForClient handleConflict(HttpServletRequest request, Exception e) {
         return new ErrorMessageForClient(e.getMessage(), request.getRequestURI());
     }
+
+    // e.getMessage() --> CONFLICT (409).
+
 }
