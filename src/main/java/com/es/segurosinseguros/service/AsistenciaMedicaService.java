@@ -56,7 +56,7 @@ public class AsistenciaMedicaService {
     }
 
     // Listar todas las asistencias médicas
-    public static List<AsistenciaMedicaDTO> getAll() {
+    public List<AsistenciaMedicaDTO> getAll() {
         // Obtener todas las asistencias médicas de la base de datos
         List<AsistenciaMedica> asistencias = asistenciaMedicaRepository.findAll();
 
@@ -65,7 +65,7 @@ public class AsistenciaMedicaService {
     }
 
     // Actualizar una asistencia médica existente
-    public static AsistenciaMedicaDTO update(Long id, AsistenciaMedicaDTO asistenciaMedicaDTO) {
+    public AsistenciaMedicaDTO update(Long id, AsistenciaMedicaDTO asistenciaMedicaDTO) {
         // Verificar si la asistencia médica existe
         AsistenciaMedica asistenciaMedica = asistenciaMedicaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("ID " + id + " no encontrado"));
@@ -102,7 +102,7 @@ public class AsistenciaMedicaService {
     }
 
     // Método de validación de asistencia médica
-    private void validate(AsistenciaMedicaDTO asistenciaMedicaDTO) {
+    public void validate(AsistenciaMedicaDTO asistenciaMedicaDTO) {
         // Validación de campos
 
         if (asistenciaMedicaDTO.getBreveDescripcion() == null || asistenciaMedicaDTO.getBreveDescripcion().isEmpty()) {

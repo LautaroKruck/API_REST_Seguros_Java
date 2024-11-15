@@ -2,11 +2,14 @@ package com.es.segurosinseguros.controller;
 
 import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
 import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
+import com.es.segurosinseguros.error.ErrorGenerico;
 import com.es.segurosinseguros.exception.BadRequestException;
+import com.es.segurosinseguros.exception.NotFoundException;
 import com.es.segurosinseguros.service.AsistenciaMedicaService;
 import com.es.segurosinseguros.service.SeguroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,15 +56,19 @@ public class AsistenciaMedicaConroller {
     }
 
     @GetMapping
-    public ResponseEntity<List<AsistenciaMedicaDTO>> getAll() {
-        List<AsistenciaMedicaDTO> asistencias = AsistenciaMedicaService.getAll();
-        return ResponseEntity.ok(asistencias);
+    public List<AsistenciaMedicaDTO> getAll() {
+        return asistenciaMedicaService.getAll();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AsistenciaMedicaDTO> update(@PathVariable Long id, @RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
-        AsistenciaMedicaDTO updatedAsistencia = AsistenciaMedicaService.update(id, asistenciaMedicaDTO);
-        return ResponseEntity.ok(updatedAsistencia);
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
+
+        try {
+            AsistenciaMedicaDTO updatedAsistencia = AsistenciaMedicaService.update(id, asistenciaMedicaDTO);
+            return new ResponseEntity<>(updatedAsistencia, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(new ErrorGenerico(e.getMessage(), "/seguros/" + id), HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
