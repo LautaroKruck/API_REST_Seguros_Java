@@ -1,31 +1,27 @@
 package com.es.segurosinseguros.controller;
 
 import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
-import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
-import com.es.segurosinseguros.error.ErrorGenerico;
 import com.es.segurosinseguros.exception.BadRequestException;
-import com.es.segurosinseguros.exception.NotFoundException;
 import com.es.segurosinseguros.service.AsistenciaMedicaService;
-import com.es.segurosinseguros.service.SeguroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public class AsistenciaMedicaConroller {
+@RestController
+@RequestMapping("/asistencias")
+public class AsistenciaMedicaController {
 
-    @Autowired
-    private AsistenciaMedicaService asistenciaMedicaService;
+    private final AsistenciaMedicaService asistenciaMedicaService;
 
-    public AsistenciaMedicaConroller(AsistenciaMedicaService asistenciaMedicaServiceService) {
+    public AsistenciaMedicaController(AsistenciaMedicaService asistenciaMedicaServiceService) {
         this.asistenciaMedicaService = asistenciaMedicaServiceService;
     }
 
     @PostMapping
-    public ResponseEntity<AsistenciaMedicaDTO> insert(@RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
+    public ResponseEntity<AsistenciaMedicaDTO> cerateAsistencia(@RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
         // Validaciones previas si las necesitas
         // Ejemplo: verificar que el seguro asociado existe, importe mayor que 0, etc.
 
@@ -37,7 +33,7 @@ public class AsistenciaMedicaConroller {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AsistenciaMedicaDTO> getById(@PathVariable String id) {
+    public ResponseEntity<AsistenciaMedicaDTO> getByIdAsistencia(@PathVariable String id) {
 
         // Compruebo que el id no es null
 
@@ -56,23 +52,18 @@ public class AsistenciaMedicaConroller {
     }
 
     @GetMapping
-    public List<AsistenciaMedicaDTO> getAll() {
+    public List<AsistenciaMedicaDTO> getAllAsistencia() {
         return asistenciaMedicaService.getAll();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
-
-        try {
-            AsistenciaMedicaDTO updatedAsistencia = AsistenciaMedicaService.update(id, asistenciaMedicaDTO);
-            return new ResponseEntity<>(updatedAsistencia, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return new ResponseEntity<>(new ErrorGenerico(e.getMessage(), "/seguros/" + id), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<AsistenciaMedicaDTO> updateAsistencia(@PathVariable Long id, @RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
+        AsistenciaMedicaDTO updatedAsistencia = asistenciaMedicaService.update(id, asistenciaMedicaDTO);
+        return ResponseEntity.ok(updatedAsistencia);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAsistencia(@PathVariable Long id) {
         asistenciaMedicaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
