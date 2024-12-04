@@ -2,7 +2,11 @@ package com.es.segurosinseguros.controller;
 
 import com.es.segurosinseguros.dto.SeguroDTO;
 import com.es.segurosinseguros.exception.BadRequestException;
+import com.es.segurosinseguros.exception.NotFoundException;
+import com.es.segurosinseguros.model.Seguro;
+import com.es.segurosinseguros.repository.SeguroRepositoryAPI;
 import com.es.segurosinseguros.service.SeguroService;
+import com.es.segurosinseguros.utils.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,23 +21,11 @@ public class SeguroController {
     @Autowired
     private SeguroService seguroService;
 
+    @Autowired
+    private SeguroRepositoryAPI seguroRepository;
+
     public SeguroController(SeguroService seguroService) {
         this.seguroService = seguroService;
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<SeguroDTO> getByIdSeguro(@PathVariable Long  id) {
-
-        // Compruebo que el id no es null
-
-        if (id == null || id.equals("a")) {
-            if (id == null || id <= 0) {
-                throw new BadRequestException("El ID proporcionado no es válido.");
-            }
-            throw new BadRequestException("El campo NIF no tiene un formato válido");
-        }
-        SeguroDTO seguro = seguroService.findById(id);
-        return ResponseEntity.ok(seguro);
     }
 
     @PostMapping
@@ -41,12 +33,24 @@ public class SeguroController {
         if (seguroDTO == null) {
             throw new BadRequestException("El objeto Seguro no puede ser null.");
         }
-        SeguroDTO nuevoSeguro = seguroService.insert(seguroDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoSeguro);
+        SeguroDTO createdSeguro = seguroService.insert(seguroDTO);
+        return ResponseEntity.ok(createdSeguro);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SeguroDTO> getByIdSeguro(@PathVariable Long  id) {
+        if (id == null) {
+            throw new BadRequestException("El ID no puede ser null.");
+        }
+
+        Seguro seguro = seguroRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("ID " + id + " no encontrado"));
+
+        return ResponseEntity.ok(Mapper.seguroEntityToDTO(seguro));
     }
 
     @GetMapping
-    public ResponseEntity<List<SeguroDTO>> getAllSeguro() {
+    public ResponseEntity<List<SeguroDTO>> getAllSeguros() {
         List<SeguroDTO> seguros = seguroService.getAll();
         return ResponseEntity.ok(seguros);
     }

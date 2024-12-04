@@ -14,7 +14,7 @@ public class AsistenciaMedica {
     @Column(name = "id_asistencia_medica")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_seguro", nullable = false)
     private Seguro seguro;
 

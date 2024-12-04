@@ -21,57 +21,63 @@ public class AsistenciaMedicaController {
     @Autowired
     private AsistenciaMedicaService asistenciaMedicaService;
 
-    public AsistenciaMedicaController(AsistenciaMedicaService asistenciaMedicaServiceService) {
-        this.asistenciaMedicaService = asistenciaMedicaServiceService;
-    }
-
     @PostMapping
-    public ResponseEntity<AsistenciaMedicaDTO> createAsistencia(@RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
-        Long idSeguro = seguroService.findById(asistenciaMedicaDTO.getIdSeguro()).getIdSeguro();
-        if (idSeguro == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    public ResponseEntity<AsistenciaMedicaDTO> createAsistencia(@RequestBody AsistenciaMedicaDTO asistenciaDTO) {
+
+        if (asistenciaDTO == null) {
+            throw new BadRequestException("El objeto Asistencia no puede ser null.");
         }
 
-        AsistenciaMedicaDTO nuevaAsistencia = asistenciaMedicaService.insert(asistenciaMedicaDTO);
-        asistenciaMedicaDTO.setIdSeguro(idSeguro);  // Asignamos el seguro a la asistencia
+        if (!seguroService.existsById(asistenciaDTO.getIdSeguro())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 si no existe el seguro
+        }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaAsistencia);
+        // Creamos la nueva asistencia
+        AsistenciaMedicaDTO createdAsistencia = asistenciaMedicaService.insert(asistenciaDTO);
+
+        // Retornamos la asistencia creada con el estado 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAsistencia);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<AsistenciaMedicaDTO> getByIdAsistencia(@PathVariable String id) {
+    public ResponseEntity<AsistenciaMedicaDTO> getByIdAsistencia(@PathVariable Long id) {
 
         // Compruebo que el id no es null
-
-        if (id == null || id.equals("a")) {
-            // LANZO UNA EXCEPCION PROPIA
-            /*
-                a) Qué código de estado devolverías --> BAD_REQUEST (400)
-                b) Qué información daríais al cliente
-                    --> Un mensaje: "id no válido" "El id no puede ser null"
-                    --> la URI: localhost:8080/seguros/x
-                c) Nombre a nuestra excepción --> BadRequestException
-             */
-            throw new BadRequestException("El campo NIF no tiene un formato válido");
+        if (id == null) {
+            throw new BadRequestException("El ID no puede ser null.");
         }
-        return null;
+        AsistenciaMedicaDTO asistencia = asistenciaMedicaService.findById(id);
+        return ResponseEntity.ok(asistencia);
     }
 
     @GetMapping
-    public List<AsistenciaMedicaDTO> getAllAsistencia() {
-        return asistenciaMedicaService.getAll();
+    public ResponseEntity<List<AsistenciaMedicaDTO>> getAllAsistencias() {
+        List<AsistenciaMedicaDTO> asistencias = asistenciaMedicaService.getAll();
+        return ResponseEntity.ok(asistencias);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AsistenciaMedicaDTO> updateAsistencia(@PathVariable Long id, @RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
-        AsistenciaMedicaDTO updatedAsistencia = asistenciaMedicaService.update(id, asistenciaMedicaDTO);
+    public ResponseEntity<AsistenciaMedicaDTO> updateAsistencia(@PathVariable Long id, @RequestBody AsistenciaMedicaDTO asistenciaDTO) {
+        if (id == null) {
+            throw new BadRequestException("El ID no puede ser null.");
+        }
+        if (asistenciaDTO == null) {
+            throw new BadRequestException("El objeto Asistencia no puede ser null.");
+        }
+
+        AsistenciaMedicaDTO updatedAsistencia = asistenciaMedicaService.update(id, asistenciaDTO);
         return ResponseEntity.ok(updatedAsistencia);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsistencia(@PathVariable Long id) {
+        if (id == null) {
+            throw new BadRequestException("El ID no puede ser null.");
+        }
+
         asistenciaMedicaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

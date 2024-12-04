@@ -2,7 +2,9 @@ package com.es.segurosinseguros.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "seguros")
@@ -35,6 +37,10 @@ public class Seguro {
     private boolean casado;
 
     private boolean embarazada;
+
+    @OneToMany(mappedBy = "seguro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AsistenciaMedica> asistencias = new ArrayList<>();
+
 
     public Seguro(Long idSeguro, String nif, String nombre, String ape1, String ape2, Integer edad, Integer numHijos, Date fechaCreacion, String sexo, boolean casado, boolean embarazada) {
         this.idSeguro = idSeguro;

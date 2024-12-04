@@ -14,12 +14,16 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SeguroService {
 
     @Autowired
     private SeguroRepositoryAPI seguroRepository;
+
+    @Autowired
+    private Mapper mapper;
 
     // Crear un seguro
     public SeguroDTO insert(SeguroDTO seguroDTO) {
@@ -29,16 +33,25 @@ public class SeguroService {
         // Convertir el DTO a entidad utilizando el Mapper
         Seguro seguro = Mapper.seguroDTOToEntity(seguroDTO);
 
-        // Asignar la fecha de creación si no está presente en el DTO
-        if (seguro.getFechaCreacion() == null) {
-            seguro.setFechaCreacion(new Date()); // Establecer la fecha actual
-        }
-
         // Guardar el seguro en la base de datos
         seguro = seguroRepository.save(seguro);
 
         // Convertir la entidad de vuelta a DTO para devolver
         return Mapper.seguroEntityToDTO(seguro);
+    }
+
+    public SeguroDTO findById(Long id) {
+
+        Seguro u = seguroRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Seguro con id "+id+" no encontrado"));
+
+        return Mapper.seguroEntityToDTO(u);
+
+    }
+
+    public boolean existsById(Long id) {
+        return seguroRepository.findById(id).isPresent();
     }
 
 
@@ -67,22 +80,20 @@ public class SeguroService {
         return seguros
                 .stream()
                 .map(Mapper::seguroEntityToDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     // Actualizar un seguro existente
     public SeguroDTO update(Long idSeguro, SeguroDTO seguroDTO) {
         // Verificar si el seguro existe
-        Optional<Seguro> seguroExistente = seguroRepository.findById(idSeguro);
-        if (seguroExistente.isEmpty()) {
-            throw new RuntimeException("Seguro no encontrado con el id: " + idSeguro);
-        }
+        Seguro seguroExistente = seguroRepository.findById(idSeguro)
+                .orElseThrow(() -> new NotFoundException("Seguro no encontrado con el ID: " + idSeguro));
 
         // Validar los datos del seguro (si es necesario)
         validate(seguroDTO);
 
         // Actualizar los datos del seguro
-        Seguro seguro = seguroExistente.get();
+        Seguro seguro = seguroExistente;
         seguro.setNif(seguroDTO.getNif());
         seguro.setNombre(seguroDTO.getNombre());
         seguro.setApe1(seguroDTO.getApe1());
@@ -104,12 +115,11 @@ public class SeguroService {
     // Eliminar un seguro
     public void deleteById(Long id) {
 
-        if (!seguroRepository.existsById(id)) {
-            throw new NotFoundException("Seguro no encontrado con el id: " + id);
-        }
+        Seguro seguro = seguroRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Seguro no encontrado con el ID: " + id));
 
         // Eliminar el seguro de la base de datos
-        seguroRepository.deleteById(id);
+        seguroRepository.deleteById(seguro.getIdSeguro());
     }
 
     // Método de validación de seguro
@@ -146,14 +156,5 @@ public class SeguroService {
         }
     }
 
-    public SeguroDTO findById(Long id) {
-
-        Seguro u = seguroRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Seguro con id "+id+" no encontrado"));
-
-        return Mapper.seguroEntityToDTO(u);
-
-    }
 }
 
