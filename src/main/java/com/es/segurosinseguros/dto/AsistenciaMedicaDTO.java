@@ -6,7 +6,7 @@ import java.time.LocalTime;
 public class AsistenciaMedicaDTO {
 
     private Long idAsistenciaMedica;
-    private SeguroDTO seguro;
+    private Long idSeguro;
     private String breveDescripcion;
     private String lugar;
     private String explicacion;
@@ -19,9 +19,9 @@ public class AsistenciaMedicaDTO {
     public AsistenciaMedicaDTO() {
     }
 
-    public AsistenciaMedicaDTO(Long idAsistenciaMedica, SeguroDTO seguro, String breveDescripcion, String lugar, String explicacion, String tipoAsistencia, LocalDate fecha, LocalTime hora, double importe) {
+    public AsistenciaMedicaDTO(Long idAsistenciaMedica, Long idSeguro, String breveDescripcion, String lugar, String explicacion, String tipoAsistencia, LocalDate fecha, LocalTime hora, double importe) {
         this.idAsistenciaMedica = idAsistenciaMedica;
-        this.seguro = seguro;
+        this.idSeguro = idSeguro;
         this.breveDescripcion = breveDescripcion;
         this.lugar = lugar;
         this.explicacion = explicacion;
@@ -39,12 +39,12 @@ public class AsistenciaMedicaDTO {
         this.idAsistenciaMedica = idAsistenciaMedica;
     }
 
-    public SeguroDTO getSeguro() {
-        return seguro;
+    public Long getIdSeguro() {
+        return idSeguro;
     }
 
-    public void setSeguro(SeguroDTO seguro) {
-        this.seguro = seguro;
+    public void setIdSeguro(Long idSeguro) {
+        this.idSeguro = idSeguro;
     }
 
     public String getBreveDescripcion() {

@@ -3,8 +3,10 @@ package com.es.segurosinseguros.service;
 import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
 import com.es.segurosinseguros.exception.NotFoundException;
 import com.es.segurosinseguros.model.AsistenciaMedica;
+import com.es.segurosinseguros.model.Seguro;
 import com.es.segurosinseguros.repository.AsistenciaMedicaRepositoryAPI;
 import com.es.segurosinseguros.utils.Mapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,15 +24,7 @@ public class AsistenciaMedicaService {
         validate(asistenciaMedicaDTO);
 
         // Convertir el DTO a entidad
-        AsistenciaMedica asistenciaMedica = new AsistenciaMedica();
-        asistenciaMedica.setSeguro(Mapper.seguroDTOToEntity(asistenciaMedicaDTO.getSeguro()));
-        asistenciaMedica.setBreveDescripcion(asistenciaMedicaDTO.getBreveDescripcion());
-        asistenciaMedica.setLugar(asistenciaMedicaDTO.getLugar());
-        asistenciaMedica.setExplicacion(asistenciaMedicaDTO.getExplicacion());
-        asistenciaMedica.setTipoAsistencia(asistenciaMedicaDTO.getTipoAsistencia());
-        asistenciaMedica.setFecha(asistenciaMedicaDTO.getFecha());
-        asistenciaMedica.setHora(asistenciaMedicaDTO.getHora());
-        asistenciaMedica.setImporte(asistenciaMedicaDTO.getImporte());
+        AsistenciaMedica asistenciaMedica = Mapper.asistenciaMedicaDTOToEntity(asistenciaMedicaDTO);
 
         // Guardar la asistencia médica en la base de datos
         asistenciaMedica = asistenciaMedicaRepository.save(asistenciaMedica);
@@ -38,6 +32,7 @@ public class AsistenciaMedicaService {
         // Convertir la entidad de vuelta a DTO
         return Mapper.asistenciaMedicaEntityToDTO(asistenciaMedica);
     }
+
 
     // Consultar una asistencia médica por su identificador
     public AsistenciaMedicaDTO getById(String id) {
@@ -66,35 +61,45 @@ public class AsistenciaMedicaService {
 
     // Actualizar una asistencia médica existente
     public AsistenciaMedicaDTO update(Long id, AsistenciaMedicaDTO asistenciaMedicaDTO) {
-        // Verificar si la asistencia médica existe
-        AsistenciaMedica asistenciaMedica = asistenciaMedicaRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("ID " + id + " no encontrado"));
-
         // Validar los datos (si es necesario)
         validate(asistenciaMedicaDTO);
 
-        // Actualizar los datos de la asistencia médica
-        asistenciaMedica.setSeguro(Mapper.seguroDTOToEntity(asistenciaMedicaDTO.getSeguro()));
-        asistenciaMedica.setBreveDescripcion(asistenciaMedicaDTO.getBreveDescripcion());
-        asistenciaMedica.setLugar(asistenciaMedicaDTO.getLugar());
-        asistenciaMedica.setExplicacion(asistenciaMedicaDTO.getExplicacion());
-        asistenciaMedica.setTipoAsistencia(asistenciaMedicaDTO.getTipoAsistencia());
-        asistenciaMedica.setFecha(asistenciaMedicaDTO.getFecha());
-        asistenciaMedica.setHora(asistenciaMedicaDTO.getHora());
-        asistenciaMedica.setImporte(asistenciaMedicaDTO.getImporte());
+        // Buscar la asistencia médica existente en la base de datos
+        AsistenciaMedica asistenciaMedicaExistente = asistenciaMedicaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Asistencia médica no encontrada"));
 
-        // Guardar la asistencia médica actualizada
-        asistenciaMedica = asistenciaMedicaRepository.save(asistenciaMedica);
+        // Convertir el DTO a entidad, pero asignando solo el ID del seguro
+        AsistenciaMedica asistenciaMedica = Mapper.asistenciaMedicaDTOToEntity(asistenciaMedicaDTO);
 
-        // Convertir la entidad de vuelta a DTO
-        return Mapper.asistenciaMedicaEntityToDTO(asistenciaMedica);
+        // Actualizar la entidad con los datos del DTO
+        asistenciaMedicaExistente.setBreveDescripcion(asistenciaMedica.getBreveDescripcion());
+        asistenciaMedicaExistente.setLugar(asistenciaMedica.getLugar());
+        asistenciaMedicaExistente.setExplicacion(asistenciaMedica.getExplicacion());
+        asistenciaMedicaExistente.setTipoAsistencia(asistenciaMedica.getTipoAsistencia());
+        asistenciaMedicaExistente.setFecha(asistenciaMedica.getFecha());
+        asistenciaMedicaExistente.setHora(asistenciaMedica.getHora());
+        asistenciaMedicaExistente.setImporte(asistenciaMedica.getImporte());
+
+        // Si el DTO tiene un ID de seguro, actualizamos el seguro en la entidad
+        if (asistenciaMedicaDTO.getIdSeguro() != null) {
+            Seguro seguro = new Seguro();
+            seguro.setIdSeguro(asistenciaMedicaDTO.getIdSeguro());  // Solo asignar el ID
+            asistenciaMedicaExistente.setSeguro(seguro);
+        }
+
+        // Guardar la asistencia médica actualizada en la base de datos
+        asistenciaMedicaExistente = asistenciaMedicaRepository.save(asistenciaMedicaExistente);
+
+        // Convertir la entidad actualizada de vuelta a DTO
+        return Mapper.asistenciaMedicaEntityToDTO(asistenciaMedicaExistente);
     }
+
 
     // Eliminar una asistencia médica
     public void deleteById(Long idAsistenciaMedica) {
 
-        if (asistenciaMedicaRepository.existsById(idAsistenciaMedica)) {
-            throw new RuntimeException("Asistencia médica no encontrada con el id: " + idAsistenciaMedica);
+        if (!asistenciaMedicaRepository.existsById(idAsistenciaMedica)) {
+            throw new NotFoundException("Asistencia médica no encontrada con el id: " + idAsistenciaMedica);
         }
 
         // Eliminar la asistencia médica de la base de datos

@@ -14,8 +14,8 @@ public class AsistenciaMedica {
     @Column(name = "id_asistencia_medica")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_seguro")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_seguro", nullable = false)
     private Seguro seguro;
 
     @Column(name = "breve_descripcion")

@@ -2,8 +2,8 @@ package com.es.segurosinseguros.controller;
 
 import com.es.segurosinseguros.dto.SeguroDTO;
 import com.es.segurosinseguros.exception.BadRequestException;
-import com.es.segurosinseguros.exception.NotFoundException;
 import com.es.segurosinseguros.service.SeguroService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,29 +14,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/seguros")
 public class SeguroController {
 
-    private final SeguroService seguroService;
+    @Autowired
+    private SeguroService seguroService;
 
     public SeguroController(SeguroService seguroService) {
         this.seguroService = seguroService;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SeguroDTO> getByIdSeguro(@PathVariable String id) {
+    public ResponseEntity<SeguroDTO> getByIdSeguro(@PathVariable Long  id) {
 
         // Compruebo que el id no es null
 
         if (id == null || id.equals("a")) {
-            // LANZO UNA EXCEPCION PROPIA
-            /*
-                a) Qué código de estado devolverías --> BAD_REQUEST (400)
-                b) Qué información daríais al cliente
-                    --> Un mensaje: "id no válido" "El id no puede ser null"
-                    --> la URI: localhost:8080/seguros/x
-                c) Nombre a nuestra excepción --> BadRequestException
-             */
+            if (id == null || id <= 0) {
+                throw new BadRequestException("El ID proporcionado no es válido.");
+            }
             throw new BadRequestException("El campo NIF no tiene un formato válido");
         }
-        return null;
+        SeguroDTO seguro = seguroService.findById(id);
+        return ResponseEntity.ok(seguro);
     }
 
     @PostMapping

@@ -2,7 +2,9 @@ package com.es.segurosinseguros.controller;
 
 import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
 import com.es.segurosinseguros.exception.BadRequestException;
+import com.es.segurosinseguros.model.Seguro;
 import com.es.segurosinseguros.service.AsistenciaMedicaService;
+import com.es.segurosinseguros.service.SeguroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,24 +15,29 @@ import java.util.List;
 @RestController
 @RequestMapping("/asistencias")
 public class AsistenciaMedicaController {
+    @Autowired
+    private SeguroService seguroService;
 
-    private final AsistenciaMedicaService asistenciaMedicaService;
+    @Autowired
+    private AsistenciaMedicaService asistenciaMedicaService;
 
     public AsistenciaMedicaController(AsistenciaMedicaService asistenciaMedicaServiceService) {
         this.asistenciaMedicaService = asistenciaMedicaServiceService;
     }
 
     @PostMapping
-    public ResponseEntity<AsistenciaMedicaDTO> cerateAsistencia(@RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
-        // Validaciones previas si las necesitas
-        // Ejemplo: verificar que el seguro asociado existe, importe mayor que 0, etc.
+    public ResponseEntity<AsistenciaMedicaDTO> createAsistencia(@RequestBody AsistenciaMedicaDTO asistenciaMedicaDTO) {
+        Long idSeguro = seguroService.findById(asistenciaMedicaDTO.getIdSeguro()).getIdSeguro();
+        if (idSeguro == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
 
-        // Llamada al servicio para crear la asistencia médica
         AsistenciaMedicaDTO nuevaAsistencia = asistenciaMedicaService.insert(asistenciaMedicaDTO);
+        asistenciaMedicaDTO.setIdSeguro(idSeguro);  // Asignamos el seguro a la asistencia
 
-        // Retornar la asistencia creada con un código de estado 201 Created
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaAsistencia);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<AsistenciaMedicaDTO> getByIdAsistencia(@PathVariable String id) {

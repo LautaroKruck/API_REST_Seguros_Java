@@ -26,7 +26,8 @@ public class Seguro {
     @Column(name = "num_hijos")
     private Integer numHijos;
 
-    @Column(name = "fecha_creacion")
+    @Column(name = "fecha_creacion", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date fechaCreacion;
 
     private String sexo;
