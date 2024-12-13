@@ -5,11 +5,13 @@ import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
 import com.es.segurosinseguros.dto.SeguroDTO;
 import com.es.segurosinseguros.model.AsistenciaMedica;
 import com.es.segurosinseguros.model.Seguro;
-import com.es.segurosinseguros.service.SeguroService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Mapper {
 
     // SeguroDTO a Seguro

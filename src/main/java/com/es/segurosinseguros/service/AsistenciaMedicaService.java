@@ -1,10 +1,8 @@
 package com.es.segurosinseguros.service;
 
 import com.es.segurosinseguros.dto.AsistenciaMedicaDTO;
-import com.es.segurosinseguros.dto.SeguroDTO;
 import com.es.segurosinseguros.exception.NotFoundException;
 import com.es.segurosinseguros.model.AsistenciaMedica;
-import com.es.segurosinseguros.model.Seguro;
 import com.es.segurosinseguros.repository.AsistenciaMedicaRepositoryAPI;
 import com.es.segurosinseguros.utils.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,8 @@ public class AsistenciaMedicaService {
     private Mapper mapper;
 
     public AsistenciaMedicaDTO insert(AsistenciaMedicaDTO asistenciaMedicaDTO) {
+        validate(asistenciaMedicaDTO);
+
         AsistenciaMedica asistenciaMedica = Mapper.asistenciaMedicaDTOToEntity(asistenciaMedicaDTO);
         AsistenciaMedica savedAsistencia = asistenciaMedicaRepository.save(asistenciaMedica);
         return Mapper.asistenciaMedicaEntityToDTO(savedAsistencia);
@@ -40,8 +40,11 @@ public class AsistenciaMedicaService {
     }
 
     public AsistenciaMedicaDTO update(Long id, AsistenciaMedicaDTO asistenciaMedicaDTO) {
+        validate(asistenciaMedicaDTO);
+
         AsistenciaMedica asistencia = asistenciaMedicaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Asistencia médica no encontrada con el ID: " + id));
+
         asistencia.getSeguro().setIdSeguro(asistenciaMedicaDTO.getIdSeguro());
         AsistenciaMedica updatedAsistencia = asistenciaMedicaRepository.save(asistencia);
         return Mapper.asistenciaMedicaEntityToDTO(updatedAsistencia);

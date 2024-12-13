@@ -9,11 +9,7 @@ import com.es.segurosinseguros.utils.NIFValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,33 +79,29 @@ public class SeguroService {
                 .collect(Collectors.toList());
     }
 
-    // Actualizar un seguro existente
     public SeguroDTO update(Long idSeguro, SeguroDTO seguroDTO) {
-        // Verificar si el seguro existe
+        // Validar el seguro antes de actualizar
+        validate(seguroDTO);
+
+        // Buscar el seguro existente
         Seguro seguroExistente = seguroRepository.findById(idSeguro)
                 .orElseThrow(() -> new NotFoundException("Seguro no encontrado con el ID: " + idSeguro));
 
-        // Validar los datos del seguro (si es necesario)
-        validate(seguroDTO);
-
-        // Actualizar los datos del seguro
-        Seguro seguro = seguroExistente;
-        seguro.setNif(seguroDTO.getNif());
-        seguro.setNombre(seguroDTO.getNombre());
-        seguro.setApe1(seguroDTO.getApe1());
-        seguro.setApe2(seguroDTO.getApe2());
-        seguro.setEdad(seguroDTO.getEdad());
-        seguro.setNumHijos(seguroDTO.getNumHijos());
-        seguro.setSexo(seguroDTO.getSexo());
-        seguro.setCasado(seguroDTO.isCasado());
-        seguro.setEmbarazada(seguroDTO.isEmbarazada());
-        seguro.setFechaCreacion(seguroDTO.getFechaCreacion());
+        // Actualizar los campos necesarios
+        seguroExistente.setNif(seguroDTO.getNif());
+        seguroExistente.setNombre(seguroDTO.getNombre());
+        seguroExistente.setApe1(seguroDTO.getApe1());
+        seguroExistente.setApe2(seguroDTO.getApe2());
+        seguroExistente.setEdad(seguroDTO.getEdad());
+        seguroExistente.setNumHijos(seguroDTO.getNumHijos());
+        seguroExistente.setSexo(seguroDTO.getSexo());
+        seguroExistente.setCasado(seguroDTO.isCasado());
+        seguroExistente.setEmbarazada(seguroDTO.isEmbarazada());
+        seguroExistente.setFechaCreacion(seguroDTO.getFechaCreacion());
 
         // Guardar el seguro actualizado
-        seguro = seguroRepository.save(seguro);
-
-        // Convertir la entidad de vuelta a DTO
-        return Mapper.seguroEntityToDTO(seguro);
+        seguroExistente = seguroRepository.save(seguroExistente);
+        return Mapper.seguroEntityToDTO(seguroExistente);
     }
 
     // Eliminar un seguro

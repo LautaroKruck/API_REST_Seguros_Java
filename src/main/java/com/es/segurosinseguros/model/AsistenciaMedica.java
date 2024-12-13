@@ -6,13 +6,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "asistencia_medicas")
+@Table(name = "asistencias_medicas")
 public class AsistenciaMedica {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_asistencia_medica")
-    private Long id;
+    private Long idAsistenciaMedica;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_seguro", nullable = false)
@@ -35,8 +35,8 @@ public class AsistenciaMedica {
     private double importe;
 
 
-    public AsistenciaMedica(Long id, Seguro seguro, String breveDescripcion, String lugar, String explicacion, String tipoAsistencia, LocalDate fecha, LocalTime hora, double importe) {
-        this.id = id;
+    public AsistenciaMedica(Long idAsistenciaMedica, Seguro seguro, String breveDescripcion, String lugar, String explicacion, String tipoAsistencia, LocalDate fecha, LocalTime hora, double importe) {
+        this.idAsistenciaMedica = idAsistenciaMedica;
         this.seguro = seguro;
         this.breveDescripcion = breveDescripcion;
         this.lugar = lugar;
@@ -62,11 +62,11 @@ public class AsistenciaMedica {
     }
 
     public Long getId() {
-        return id;
+        return idAsistenciaMedica;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.idAsistenciaMedica = idAsistenciaMedica;
     }
 
     public Seguro getSeguro() {
